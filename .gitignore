@@ -3,9 +3,10 @@
 /node_modules
 /build
 /adjacency.txt
+/adjacencyTwo.txt
 
 # Logs
-logs
+logs 
 *.log
 npm-debug.log*
 pnpm-debug.log*
