@@ -77,7 +77,15 @@ model User {
   preferences Json?
 
   clips Clip[]
+  // subscriptions Subscription?
+  // usage   Usage[]
+  // sessions  Session[]
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   @@map("users")
 }
+
 
 model Clip {
   id             String  @id @default(cuid())
