@@ -13,3 +13,144 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//======All enum ======
+
+enum UserRole {
+  USER
+  PREMIUM
+  ADMIN
+}
+
+enum ClipStatus {
+  PENDING
+  DOWNLOADING
+  PROCESSING
+  AI_ANALYZING
+  RENDERING
+  UPLOADING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  RETRYING
+  CANCELED
+}
+
+enum JobType {
+  YOUTUBE_DOWNLOAD
+  VIDEO_PROCESS
+  AI_TRANSCRIPTION
+  AI_SCENE_DETECTION
+  AI_HIGHLIGHT_EXTRACTION
+  VIDEO_UPLOAD
+  EMAIL_SEND
+  CLEANUP
+}
+
+//========Enum end =======/
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String?
+  firstName       String
+  lastName        String
+  avatar          String?
+  role            UserRole  @default(USER)
+  isActive        Boolean   @default(true)
+  isEmailVerified Boolean   @default(false)
+  emailVerifiedAt DateTime?
+
+  googleId         String? @unique
+  youtubeChannelId String?
+
+  emailVerificiationToken String?
+  passwordResetToken      String?
+  passwordResetExpires    DateTime?
+
+  preferences Json?
+
+  clips Clip[]
+}
+
+model Clip {
+  id             String  @id @default(cuid())
+  title          String
+  description    String?
+  youtubeUrl     String
+  youtubeVideoId String?
+
+  status       ClipStatus @default(PENDING)
+  progress     Float      @default(0)
+  errorMessage String?
+
+  config      Json?
+  template    String?
+  aspectRatio String
+
+  outputUrl    String?
+  thumbnailUrl String?
+  duration     Int     @default(0)
+
+  metadata Json? //AI analysis results
+
+  userId   String
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  segments ClipSegment[]
+  jobs     Job[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clips")
+}
+
+model ClipSegment {
+  id          String  @id @default(cuid())
+  clipId      String
+  startTime   Int
+  endTime     Int
+  title       String?
+  description String?
+  confidence  Float?
+
+  clip Clip @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clip_segments")
+}
+
+model Job {
+  id     String    @id @default(cuid())
+  type   JobType
+  status JobStatus @default(PENDING)
+  priority  Int @default(0)
+
+  data Json
+  result  Json?
+  error   String?
+  progress Float @default(0)
+
+  startedAt DateTime?
+  completedAt DateTime?
+  failedAt  DateTime?
+
+  attempts  Int @default(0)
+  maxAttempts Int @default(5)
+
+  clipId   String?
+  clip     Clip? @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jobs")
+}
