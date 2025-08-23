@@ -53,6 +53,27 @@ enum JobType {
   CLEANUP
 }
 
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  MAGIC_LINK
+}
+
 //========Enum end =======/
 
 model User {
@@ -73,20 +94,37 @@ model User {
   emailVerificiationToken String?
   passwordResetToken      String?
   passwordResetExpires    DateTime?
-
+  
+  template    Template[]
   preferences Json?
 
   clips Clip[]
-  // subscriptions Subscription?
-  // usage   Usage[]
-  // sessions  Session[]
+  subscriptions Subscription?
+  usage   Usage[]
+  sessions  Session[]
    createdAt DateTime @default(now())
    updatedAt DateTime @updatedAt
 
    @@map("users")
 }
 
+model Session {
 
+  id  String @id @default(cuid())
+  userId  String
+  token   String @unique
+  expiresAt DateTime
+
+  isActive  Boolean @default(true)
+  ipAddress  String?
+  userAgent String?
+
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("sessions")
+}
 model Clip {
   id             String  @id @default(cuid())
   title          String
@@ -119,6 +157,29 @@ model Clip {
   @@map("clips")
 }
 
+model Template {
+  id   String @id @default(cuid())
+  name String @unique
+  description  String?
+  category   String
+
+  config   Json //defalt setting
+
+  aiSettings Json?
+
+  userId    String
+  user    User @relation(fields: [userId], references: [id])
+
+  isActive   Boolean @default(true)
+  isDefault  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("templates")
+}
+
+// Clip segments (for multi-segment clips)
 model ClipSegment {
   id          String  @id @default(cuid())
   clipId      String
@@ -161,4 +222,74 @@ model Job {
   updatedAt DateTime @updatedAt
 
   @@map("jobs")
+}
+
+
+model Subscription {
+  id  String @id @default(cuid())
+  userId   String @unique
+  plan     SubscriptionPlan
+
+  status   SubscriptionStatus
+
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  stripePriceId  String?
+
+
+
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+
+  monthlyClipLimit   Int @default(5)
+  monthlyMinutesLimit Int @default(60)
+
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
+}
+
+
+model Usage {
+  id        String   @id @default(cuid())
+  userId    String
+  month    Int
+  year   Int
+
+
+  clipsCreated   Int @default(0)
+  clipsEdited    Int @default(0)
+  clipsDeleted   Int @default(0)
+
+  minutesProcessed   Int   @default(0)
+  apiCalls       Int   @default(0)
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, month, year])
+  @@map("usage")
+}
+
+
+
+model Token {|
+  id   String @id @default(cuid())
+  token  String @unique
+  type   TokenType
+  userId  String?
+  email  String?
+  expiresAt DateTime
+  usedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tokens")
 }
