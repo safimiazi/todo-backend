@@ -188,7 +188,7 @@ model Template {
   platform     String
   aspectRatio  String
   caption      String
-  overlayLogo   String?
+  overlayLogo  String?
   introVideo   String
   outroVideo   String
   colorTheme   String
