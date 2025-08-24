@@ -4,12 +4,14 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { MailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService,
+        private mailService: MailService
     ) { }
 
     // ------------------ REGISTER ------------------
@@ -69,5 +71,97 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
         };
+
+
+
+
+
+
+
+
+
+
+
+        
     }
+
+
+     // ---------------- EMAIL VERIFICATION ----------------
+  async verifyEmail(token: string) {
+    const user = await this.prisma.user.findFirst({ where: { emailVerificiationToken: token } });
+    if (!user) throw new BadRequestException('Invalid verification token');
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        emailVerifiedAt: new Date(),
+        emailVerificiationToken: null,
+      },
+    });
+
+    return { message: 'Email verified successfully' };
+  }
+
+  // ---------------- LOGIN ----------------
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.password) throw new BadRequestException('Login method not supported for this account');
+
+    const passwordValid = await bcrypt.compare(dto.password, user.password);
+    if (!passwordValid) throw new BadRequestException('Invalid credentials');
+
+    if (!user.isEmailVerified) throw new BadRequestException('Email not verified');
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+
+    const { password, ...result } = user;
+    return { user: result, accessToken };
+  }
+
+  // ---------------- PASSWORD RESET REQUEST ----------------
+  async requestPasswordReset(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const resetToken = uuidv4();
+    const resetExpires = addMinutes(new Date(), 30);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires,
+      },
+    });
+
+    // send reset email
+    await this.mailService.sendPasswordReset(email, resetToken);
+
+    return { message: 'Password reset email sent' };
+  }
+
+  // ---------------- PASSWORD RESET ----------------
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({ where: { passwordResetToken: token } });
+    if (!user || !user.passwordResetExpires || new Date() > user.passwordResetExpires)
+      throw new BadRequestException('Invalid or expired reset token');
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashed,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      },
+    });
+
+    return { message: 'Password reset successfully' };
+  }
+
+    
 }

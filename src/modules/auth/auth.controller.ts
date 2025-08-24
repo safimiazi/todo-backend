@@ -48,4 +48,26 @@ export class AuthController {
     async googleAuthRedirect(@Req() req) {
         return req.user; // { access_token, user }
     }
+
+    @Public()
+    @Get('verify-email')
+    async verifyEmail(@Req() req) {
+        const { token } = req.query;
+        const result = await this.authService.verifyEmail(token as string);
+        return successResponse(result, 'Email verified');
+    }
+
+    @Public()
+    @Post('request-password-reset')
+    async requestPasswordReset(@Body('email') email: string) {
+        const result = await this.authService.requestPasswordReset(email);
+        return successResponse(result, 'Password reset email sent');
+    }
+
+    @Public()
+    @Post('reset-password')
+    async resetPassword(@Body() body: { token: string; password: string }) {
+        const result = await this.authService.resetPassword(body.token, body.password);
+        return successResponse(result, 'Password reset successful');
+    }
 }
