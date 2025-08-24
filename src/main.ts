@@ -1,10 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import compression from 'compression';
 import helmet from 'helmet';
+
 async function bootstrap() {
  const logger = new Logger('Bootstrap');
   
@@ -65,7 +66,6 @@ async function bootstrap() {
 
     // API prefix
     app.setGlobalPrefix('api/v1');
-
     // Swagger documentation
     if (environment === 'development') {
       const config = new DocumentBuilder()
@@ -98,8 +98,6 @@ async function bootstrap() {
     logger.error('Failed to start application', error.stack);
     process.exit(1);
   }
-
-
   // await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
