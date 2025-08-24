@@ -26,24 +26,32 @@ export class AuthService {
         if (existingUser) throw new BadRequestException('Email already registered');
 
         const hashed = await bcrypt.hash(dto.password, 10);
-
-        // generate email verification token
         const emailToken = uuidv4();
 
-        const user = await this.prisma.user.create({
-            data: {
-                email: dto.email,
-                password: hashed,
-                firstName: dto.firstName,
-                lastName: dto.lastName,
-                avatar: dto.avatar ?? null,
-                emailVerificiationToken: emailToken,
-                emailVerifiedAt: null,
-            },
-        });
+        // Prisma transaction
+        const user = await this.prisma.$transaction(async (prismaTx) => {
+            const newUser = await prismaTx.user.create({
+                data: {
+                    email: dto.email,
+                    password: hashed,
+                    firstName: dto.firstName,
+                    lastName: dto.lastName,
+                    avatar: dto.avatar ?? null,
+                    emailVerificiationToken: emailToken,
+                    emailVerifiedAt: null,
+                },
+            });
 
-        // send verification email
-        await this.mailService.sendEmailVerification(user.email, emailToken);
+            try {
+                // email send
+                await this.mailService.sendEmailVerification(newUser.email, emailToken);
+            } catch (err) {
+                // throw error to rollback transaction
+                throw new Error(`Email sending failed: ${err.message}`);
+            }
+
+            return newUser;
+        });
 
         const { password, ...result } = user;
         return result;

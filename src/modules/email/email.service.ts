@@ -4,37 +4,45 @@ import { resetPasswordTemplate, verificationTemplate } from './templates/email-t
 
 @Injectable()
 export class MailService {
-  private transporter;
+    private transporter;
 
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  }
+    constructor() {
+        this.transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
+    }
 
-  async sendEmailVerification(email: string, token: string) {
-    const url = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-    await this.transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: email,
-      subject: 'Verify Your Email',
-      html: verificationTemplate(url),
-    });
-  }
+    async sendEmailVerification(email: string, token: string) {
+        try {
+            const url = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+            await this.transporter.sendMail({
+                from: process.env.SMTP_FROM,
+                to: email,
+                subject: 'Verify Your Email',
+                html: verificationTemplate(url),
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 
-  async sendPasswordReset(email: string, token: string) {
-    const url = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await this.transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: email,
-      subject: 'Reset Your Password',
-      html: resetPasswordTemplate(url),
-    });
-  }
+    async sendPasswordReset(email: string, token: string) {
+        try {
+            const url = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+            await this.transporter.sendMail({
+                from: process.env.SMTP_FROM,
+                to: email,
+                subject: 'Reset Your Password',
+                html: resetPasswordTemplate(url),
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 }
