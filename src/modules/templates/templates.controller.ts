@@ -1,5 +1,6 @@
 import {
   Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req,
+  UnauthorizedException,
   UploadedFiles, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -13,7 +14,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('templates')
-// @UseGuards(JwtAuthGuard, RolesGuard)
+ @UseGuards(JwtAuthGuard, RolesGuard)
 
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
@@ -28,7 +29,7 @@ export class TemplateController {
       { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
     ),
   )
-//   @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
+  @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
   async create(
     @Req() req,
     @Body() dto: CreateTemplateDto,
@@ -36,6 +37,9 @@ export class TemplateController {
     files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[] },
   ) {
     const userId = req.user?.id; // ensure AuthGuard sets req.user
+     if (!userId) {
+      throw new UnauthorizedException('No user ID found in request');
+    }
     const data = await this.templateService.create(userId, dto, files);
     return successResponse(data, 'Template created');
   }
