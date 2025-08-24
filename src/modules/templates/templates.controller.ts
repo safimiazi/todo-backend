@@ -24,7 +24,7 @@ export class TemplateController {
         FileFieldsInterceptor(
             [
                 { name: 'introVideo', maxCount: 1 },
-                { name: 'outroVideo', maxCount: 1 },
+                { name: 'outroVideo', maxCount: 1 }, 
                 { name: 'overLayLogo', maxCount: 1 }
             ],
             { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
