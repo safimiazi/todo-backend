@@ -11,7 +11,7 @@ export class TemplateService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
-  ) {}
+  ) { }
 
   // Create a template
   async create(
@@ -88,7 +88,7 @@ export class TemplateService {
 
   // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
-    const { page = 1, limit = 10, search, orderBy= 'desc' } = q;
+    const { page = 1, limit = 10, search, orderBy = 'desc' } = q;
     const where = {
       userId,
       ...(search ? { templateName: { contains: search, mode: 'insensitive' as const } } : {}),
@@ -115,6 +115,7 @@ export class TemplateService {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
     if (tpl.userId !== userId) throw new ForbiddenException('Forbidden');
+
     return tpl;
   }
 
@@ -194,7 +195,12 @@ export class TemplateService {
     if (!tpl) throw new NotFoundException('Template not found');
     if (tpl.userId !== userId) throw new ForbiddenException('Forbidden');
 
-    await this.prisma.template.delete({ where: { id } });
-    return { deleted: true };
+    await this.prisma.template.update({
+      where: { id },
+      data: { isDeleted: true }
+    })
+
+    return;
+
   }
 }

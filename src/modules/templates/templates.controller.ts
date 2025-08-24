@@ -57,7 +57,7 @@ export class TemplateController {
 
     @Get(':id')
     async getOne(@Req() req, @Param('id', ParseIntPipe) id: number) {
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
         const data = await this.templateService.get(userId, id);
         return successResponse(data, 'Template fetched');
     }
