@@ -103,7 +103,12 @@ export class AuthService {
 
     // ---------------- EMAIL VERIFICATION ----------------
     async verifyEmail(token: string) {
+        const isVerifiedEmail = await this.prisma.user.findFirst({ where: { isEmailVerified: true } });
+        if (isVerifiedEmail) throw new BadRequestException('Email is already verified');
+
         const user = await this.prisma.user.findFirst({ where: { emailVerificiationToken: token } });
+
+
         if (!user) throw new BadRequestException('Invalid verification token');
 
         await this.prisma.user.update({
@@ -115,7 +120,7 @@ export class AuthService {
             },
         });
 
-        return 
+        return
     }
 
 
@@ -139,7 +144,7 @@ export class AuthService {
         // send reset email
         await this.mailService.sendPasswordReset(email, resetToken);
 
-        return { message: 'Password reset email sent' };
+        return
     }
 
     // ---------------- PASSWORD RESET ----------------
@@ -159,7 +164,7 @@ export class AuthService {
             },
         });
 
-        return { message: 'Password reset successfully' };
+        return
     }
 
 
