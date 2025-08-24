@@ -54,7 +54,7 @@ export class AuthController {
     async verifyEmail(@Req() req) {
         const { token } = req.query;
         const result = await this.authService.verifyEmail(token as string);
-        return successResponse(result, 'Email verified');
+        return successResponse(result, "Email verified successfully");
     }
 
     @Public()

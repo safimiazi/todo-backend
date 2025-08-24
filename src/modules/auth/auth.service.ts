@@ -115,7 +115,7 @@ export class AuthService {
             },
         });
 
-        return { message: 'Email verified successfully' };
+        return 
     }
 
 
