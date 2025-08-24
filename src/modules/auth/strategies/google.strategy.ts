@@ -62,7 +62,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     if (!user) {
       return done(new Error('User not found'), false);
     }
-    const payload  = { sub: user.id, email: user.email, role: user.role };
+    const payload  = { userId: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
 
     done(null, { access_token: token, user });
