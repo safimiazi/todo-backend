@@ -157,26 +157,49 @@ model Clip {
   @@map("clips")
 }
 
+// model Template {
+//   id   String @id @default(cuid())
+//   name String @unique
+//   description  String?
+//   category   String
+
+//   config   Json //defalt setting
+
+//   aiSettings Json?
+
+//   userId    String
+//   user    User @relation(fields: [userId], references: [id])
+
+//   isActive   Boolean @default(true)
+//   isDefault  Boolean @default(false)
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@map("templates")
+// }
+
+
 model Template {
-  id   String @id @default(cuid())
-  name String @unique
-  description  String?
-  category   String
-
-  config   Json //defalt setting
-
-  aiSettings Json?
-
-  userId    String
-  user    User @relation(fields: [userId], references: [id])
-
-  isActive   Boolean @default(true)
+  id           Int      @id @default(autoincrement())
+  userId       String
+  templateName String
+  platform     String
+  aspectRatio  String
+  caption      String
+  overlayLog   String
+  introVideo   String
+  outroVideo   String
+  colorTheme   String
+    isActive   Boolean @default(true)
   isDefault  Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
 
   @@map("templates")
+
 }
 
 // Clip segments (for multi-segment clips)
