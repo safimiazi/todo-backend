@@ -193,6 +193,7 @@ model Template {
   outroVideo   String
   colorTheme   String
   isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
   isDefault    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
