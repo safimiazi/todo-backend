@@ -1,6 +1,6 @@
 import {
   Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req,
-  UploadedFiles, UseInterceptors,
+  UploadedFiles, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateTemplateDto } from './dto/create-template.dto';
@@ -8,8 +8,13 @@ import { UpdateTemplateDto } from './dto/update-template.dto';
 import { successResponse } from 'src/common/response/response.util';
 import { TemplateService } from './templates.service';
 import { QueryTemplateDto } from './dto/query-template.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('templates')
+@UseGuards(JwtAuthGuard, RolesGuard)
+
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
@@ -23,6 +28,7 @@ export class TemplateController {
       { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
     ),
   )
+  @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
   async create(
     @Req() req,
     @Body() dto: CreateTemplateDto,
