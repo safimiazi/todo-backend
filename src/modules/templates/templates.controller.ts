@@ -3,12 +3,11 @@ import {
   UploadedFiles, UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { TemplateService } from './template.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
-import { QueryTemplateDto } from './dto/query-template.dto';
 import { successResponse } from 'src/common/response/response.util';
-import { Public } from 'src/modules/auth/decorators/public.decorator'; // if you have it; else remove
+import { TemplateService } from './templates.service';
+import { QueryTemplateDto } from './dto/query-template.dto';
 
 @Controller('templates')
 export class TemplateController {
