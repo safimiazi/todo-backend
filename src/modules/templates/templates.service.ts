@@ -1,10 +1,10 @@
-import {  ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { QueryTemplateDto } from './dto/query-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
-
 
 @Injectable()
 export class TemplateService {
@@ -13,26 +13,51 @@ export class TemplateService {
     private cloudinary: CloudinaryService,
   ) {}
 
-  // Create
+  // Create a template
   async create(
     userId: string,
     dto: CreateTemplateDto,
-    files?: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[] },
+    files?: {
+      introVideo?: Express.Multer.File[];
+      outroVideo?: Express.Multer.File[];
+      overlayLogo?: Express.Multer.File[];
+    },
   ) {
-    // Upload first (so if upload fails, nothing is written)
     let introUrl = '';
     let outroUrl = '';
+    let overlayUrl = '';
 
+    // Upload intro video
     if (files?.introVideo?.[0]) {
-      const up = await this.cloudinary.uploadBuffer(files.introVideo[0].buffer, 'templates/intro', 'video');
+      const up = await this.cloudinary.uploadBuffer(
+        files.introVideo[0].buffer,
+        'templates/intro',
+        'video',
+      );
       introUrl = up.secure_url;
     }
+
+    // Upload outro video
     if (files?.outroVideo?.[0]) {
-      const up = await this.cloudinary.uploadBuffer(files.outroVideo[0].buffer, 'templates/outro', 'video');
+      const up = await this.cloudinary.uploadBuffer(
+        files.outroVideo[0].buffer,
+        'templates/outro',
+        'video',
+      );
       outroUrl = up.secure_url;
     }
 
-    // If isDefault true, unset others for this user inside a transaction
+    // Upload overlay logo as image
+    if (files?.overlayLogo?.[0]) {
+      const up = await this.cloudinary.uploadBuffer(
+        files.overlayLogo[0].buffer,
+        'templates/logo',
+        'image',
+      );
+      overlayUrl = up.secure_url;
+    }
+
+    // Transaction to handle isDefault logic
     const created = await this.prisma.$transaction(async (tx) => {
       if (dto.isDefault) {
         await tx.template.updateMany({
@@ -40,6 +65,7 @@ export class TemplateService {
           data: { isDefault: false },
         });
       }
+
       return tx.template.create({
         data: {
           userId,
@@ -47,7 +73,7 @@ export class TemplateService {
           platform: dto.platform,
           aspectRatio: dto.aspectRatio,
           caption: dto.caption,
-          overlayLogo: dto.overlayLogo,
+          overlayLogo: overlayUrl || '',
           colorTheme: dto.colorTheme,
           introVideo: introUrl || '',
           outroVideo: outroUrl || '',
@@ -60,7 +86,7 @@ export class TemplateService {
     return created;
   }
 
-  // List (own templates)
+  // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
     const { page = 1, limit = 10, search } = q;
     const where = {
@@ -84,7 +110,7 @@ export class TemplateService {
     };
   }
 
-  // Get one (ownership)
+  // Get a single template (ownership check)
   async get(userId: string, id: number) {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
@@ -92,12 +118,12 @@ export class TemplateService {
     return tpl;
   }
 
-  // Update
+  // Update a template
   async update(
     userId: string,
     id: number,
     dto: UpdateTemplateDto,
-    files?: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[] },
+    files?: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[]; overlayLogo?: Express.Multer.File[] },
   ) {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
@@ -105,6 +131,7 @@ export class TemplateService {
 
     let introUrl = tpl.introVideo;
     let outroUrl = tpl.outroVideo;
+    let overlayUrl = tpl.overlayLogo;
 
     if (files?.introVideo?.[0]) {
       const up = await this.cloudinary.uploadBuffer(files.introVideo[0].buffer, 'templates/intro', 'video');
@@ -114,8 +141,11 @@ export class TemplateService {
       const up = await this.cloudinary.uploadBuffer(files.outroVideo[0].buffer, 'templates/outro', 'video');
       outroUrl = up.secure_url;
     }
+    if (files?.overlayLogo?.[0]) {
+      const up = await this.cloudinary.uploadBuffer(files.overlayLogo[0].buffer, 'templates/logo', 'image');
+      overlayUrl = up.secure_url;
+    }
 
-    // If isDefault toggled true, unset others
     const updated = await this.prisma.$transaction(async (tx) => {
       if (dto.isDefault === true) {
         await tx.template.updateMany({
@@ -131,7 +161,7 @@ export class TemplateService {
           platform: dto.platform ?? tpl.platform,
           aspectRatio: dto.aspectRatio ?? tpl.aspectRatio,
           caption: dto.caption ?? tpl.caption,
-          overlayLogo: dto.overlayLogo ?? tpl.overlayLogo,
+          overlayLogo: overlayUrl,
           colorTheme: dto.colorTheme ?? tpl.colorTheme,
           introVideo: introUrl,
           outroVideo: outroUrl,
@@ -144,7 +174,7 @@ export class TemplateService {
     return updated;
   }
 
-  // Set default explicitly
+  // Set default template
   async setDefault(userId: string, id: number) {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
@@ -158,7 +188,7 @@ export class TemplateService {
     return updated;
   }
 
-  // Delete
+  // Delete a template
   async remove(userId: string, id: number) {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
