@@ -25,7 +25,7 @@ export class TemplateController {
             [
                 { name: 'introVideo', maxCount: 1 },
                 { name: 'outroVideo', maxCount: 1 },
-                {name : 'overLayLogo', maxCount: 1}
+                { name: 'overLayLogo', maxCount: 1 }
             ],
             { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
         ),
@@ -35,13 +35,14 @@ export class TemplateController {
         @Req() req,
         @Body() dto: CreateTemplateDto,
         @UploadedFiles()
-        files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[];  overlayLogo?: Express.Multer.File[]},
+        files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[]; overlayLogo?: Express.Multer.File[] },
     ) {
         const userId = req.user.userId; // ensure AuthGuard sets req.user
 
         if (!userId) {
             throw new UnauthorizedException('No user ID found in request');
         }
+        console.log(dto)
         const data = await this.templateService.create(userId, dto, files);
         return successResponse(data, 'Template created');
     }
