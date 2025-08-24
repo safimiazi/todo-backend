@@ -88,7 +88,7 @@ export class TemplateService {
 
   // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
-    const { page = 1, limit = 10, search } = q;
+    const { page = 1, limit = 10, search, orderBy= 'desc' } = q;
     const where = {
       userId,
       ...(search ? { templateName: { contains: search, mode: 'insensitive' as const } } : {}),
@@ -97,7 +97,7 @@ export class TemplateService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.template.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: orderBy === 'asc' ? 'asc' : 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
