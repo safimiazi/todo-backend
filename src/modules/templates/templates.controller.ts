@@ -13,12 +13,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('templates')
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
-  @Post()
+  @Post('create-template')
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -28,7 +28,7 @@ export class TemplateController {
       { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
     ),
   )
-  @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
+//   @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
   async create(
     @Req() req,
     @Body() dto: CreateTemplateDto,
