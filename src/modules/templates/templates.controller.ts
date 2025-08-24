@@ -99,7 +99,7 @@ export class TemplateController {
     @Delete(':id')
     @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
     async remove(@Req() req, @Param('id', ParseIntPipe) id: number) {
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
         const data = await this.templateService.remove(userId, id);
         return successResponse(data, 'Template deleted');
     }

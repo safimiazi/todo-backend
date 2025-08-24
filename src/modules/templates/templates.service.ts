@@ -89,10 +89,11 @@ export class TemplateService {
   // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
     const { page = 1, limit = 10, search, orderBy = 'desc', isDeleted = false } = q;
+    console.log(typeof isDeleted)
 
     const where: any = {
       userId,
-      isDeleted, // <-- filter applied from query (true/false)
+      isDeleted : isDeleted === 'true' ? true : false,
       ...(search
         ? { templateName: { contains: search, mode: 'insensitive' as const } }
         : {}),
@@ -217,7 +218,7 @@ export class TemplateService {
       data: { isDeleted: true },
     });
 
-    return { message: 'Template deleted successfully' };
+    return 
   }
 
 }
