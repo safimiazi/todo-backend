@@ -25,7 +25,7 @@ export class TemplateController {
             [
                 { name: 'introVideo', maxCount: 1 },
                 { name: 'outroVideo', maxCount: 1 },
-                { name: 'overlayLogo', maxCount: 1 } // ✅ change here
+                { name: 'overlayLogo', maxCount: 1 } // ✅ change here                      
             ],
             { limits: { fileSize: 1024 * 1024 * 200 } }, // 200MB
         ),
@@ -47,7 +47,8 @@ export class TemplateController {
         return successResponse(data, 'Template created');
     }
 
-    @Get()
+    @Get('templates-list')
+    @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
     async list(@Req() req, @Query() q: QueryTemplateDto) {
         const userId = req.user?.id;
         const data = await this.templateService.list(userId, q);
