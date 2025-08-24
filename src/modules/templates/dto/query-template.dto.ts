@@ -25,7 +25,7 @@ export class QueryTemplateDto {
 
   @IsOptional()
   @Type(() => String)
-  @IsBoolean()
+  @IsString()
   isDeleted?: 'true' | 'false' = 'false'; // default to 'false'
   
 }
