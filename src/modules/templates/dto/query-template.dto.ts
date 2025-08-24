@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class QueryTemplateDto {
   @IsOptional() 
@@ -21,5 +21,11 @@ export class QueryTemplateDto {
   @Type(() => String)
   @IsString()
   orderBy?: 'asc' | 'desc' = 'desc'; // default to 'desc'
+
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  isDeleted?: 'true' | 'false' = 'false'; // default to 'false'
   
 }

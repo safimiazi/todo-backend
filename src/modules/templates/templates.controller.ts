@@ -56,6 +56,8 @@ export class TemplateController {
     }
 
     @Get(':id')
+    @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
+
     async getOne(@Req() req, @Param('id', ParseIntPipe) id: number) {
         const userId = req.user?.userId;
         const data = await this.templateService.get(userId, id);
@@ -68,18 +70,21 @@ export class TemplateController {
             [
                 { name: 'introVideo', maxCount: 1 },
                 { name: 'outroVideo', maxCount: 1 },
+                { name: 'overlayLogo', maxCount: 1 }
             ],
             { limits: { fileSize: 1024 * 1024 * 200 } },
         ),
     )
+
+    @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
     async update(
         @Req() req,
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateTemplateDto,
         @UploadedFiles()
-        files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[] },
+        files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[], overlayLogo?: Express.Multer.File[] },
     ) {
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
         const data = await this.templateService.update(userId, id, dto, files);
         return successResponse(data, 'Template updated');
     }
@@ -92,6 +97,7 @@ export class TemplateController {
     }
 
     @Delete(':id')
+    @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
     async remove(@Req() req, @Param('id', ParseIntPipe) id: number) {
         const userId = req.user?.id;
         const data = await this.templateService.remove(userId, id);

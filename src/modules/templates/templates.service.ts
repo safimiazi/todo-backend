@@ -1,5 +1,5 @@
 
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
@@ -88,10 +88,14 @@ export class TemplateService {
 
   // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
-    const { page = 1, limit = 10, search, orderBy = 'desc' } = q;
-    const where = {
+    const { page = 1, limit = 10, search, orderBy = 'desc', isDeleted = false } = q;
+
+    const where: any = {
       userId,
-      ...(search ? { templateName: { contains: search, mode: 'insensitive' as const } } : {}),
+      isDeleted, // <-- filter applied from query (true/false)
+      ...(search
+        ? { templateName: { contains: search, mode: 'insensitive' as const } }
+        : {}),
     };
 
     const [items, total] = await this.prisma.$transaction([
@@ -115,7 +119,10 @@ export class TemplateService {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
     if (tpl.userId !== userId) throw new ForbiddenException('Forbidden');
-
+    // Check if already deleted
+    if (tpl.isDeleted) {
+      throw new BadRequestException('Template is already deleted');
+    }
     return tpl;
   }
 
@@ -129,6 +136,11 @@ export class TemplateService {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
     if (tpl.userId !== userId) throw new ForbiddenException('Forbidden');
+
+    // Check if already deleted
+    if (tpl.isDeleted) {
+      throw new BadRequestException('Template is already deleted');
+    }
 
     let introUrl = tpl.introVideo;
     let outroUrl = tpl.outroVideo;
@@ -189,18 +201,23 @@ export class TemplateService {
     return updated;
   }
 
-  // Delete a template
+  // Delete a template (soft delete)
   async remove(userId: string, id: number) {
     const tpl = await this.prisma.template.findUnique({ where: { id } });
     if (!tpl) throw new NotFoundException('Template not found');
     if (tpl.userId !== userId) throw new ForbiddenException('Forbidden');
 
+    // Check if already deleted
+    if (tpl.isDeleted) {
+      throw new BadRequestException('Template is already deleted');
+    }
+
     await this.prisma.template.update({
       where: { id },
-      data: { isDeleted: true }
-    })
+      data: { isDeleted: true },
+    });
 
-    return;
-
+    return { message: 'Template deleted successfully' };
   }
+
 }
