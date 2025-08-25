@@ -166,8 +166,6 @@ model Template {
   platform     String
   aspectRatio  String
   overlayLogo  String?
-  caption      String?
-  colorTheme   String?
   introVideo   String
   outroVideo   String
   isActive     Boolean  @default(true)
