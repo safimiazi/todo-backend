@@ -127,9 +127,6 @@ model Session {
   @@map("sessions")
 }
 
-
-
-
 model Clip {
   id             String  @id @default(cuid())
   title          String
@@ -162,8 +159,6 @@ model Clip {
   @@map("clips")
 }
 
-
-
 model Template {
   id           Int      @id @default(autoincrement())
   userId       String
@@ -171,6 +166,8 @@ model Template {
   platform     String
   aspectRatio  String
   overlayLogo  String?
+  caption      String?
+  colorTheme   String?
   introVideo   String
   outroVideo   String
   isActive     Boolean  @default(true)
