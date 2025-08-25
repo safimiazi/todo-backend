@@ -58,18 +58,29 @@ export class AuthService {
     }
 
     // ------------------ LOGIN ------------------
-    async login(dto: LoginDto) {
-        const user = await this.prisma.user.findUnique({
-            where: { email: dto.email },
-        });
+async login(dto: LoginDto) {
+  const user = await this.prisma.user.findUnique({
+    where: { email: dto.email },
+  });
 
-        if (!user) throw new UnauthorizedException('Invalid credentials');
+  if (!user) {
+    throw new UnauthorizedException({
+      message: 'User not found with this email',
+      code: 'USER_NOT_FOUND',
+    });
+  }
 
-        const passwordValid = await bcrypt.compare(dto.password, user.password);
-        if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
+  const passwordValid = await bcrypt.compare(dto.password, user.password);
+  if (!passwordValid) {
+    throw new UnauthorizedException({
+      message: 'Password is incorrect',
+      code: 'INVALID_PASSWORD',
+    });
+  }
 
-        return this.generateTokens(user.id, user.email, user.role);
-    }
+  return this.generateTokens(user.id, user.email, user.role);
+}
+
 
     // ------------------ VALIDATE USER (local strategy er jonno) ------------------
     async validateUser(email: string, password: string) {
@@ -82,7 +93,7 @@ export class AuthService {
 
     // ------------------ GENERATE TOKENS ------------------
     private generateTokens(userId: string, email: string, role: string) {
-        const payload = { sub: userId, email, role };
+        const payload = {  userId, email, role };
         return {
             accessToken: this.jwtService.sign(payload),
         };
