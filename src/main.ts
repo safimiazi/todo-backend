@@ -7,8 +7,8 @@ import compression from 'compression';
 import helmet from 'helmet';
 
 async function bootstrap() {
- const logger = new Logger('Bootstrap');
-  
+  const logger = new Logger('Bootstrap');
+
   try {
     const app = await NestFactory.create(AppModule, {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
@@ -36,12 +36,19 @@ async function bootstrap() {
     app.use(compression());
 
     // CORS configuration
-    app.enableCors({
-      origin: configService.get('FRONTEND_URL', 'http://localhost:3000'),
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    });
+    // app.enableCors({
+    //   origin: configService.get('FRONTEND_URL', 'http://localhost:5173'),
+    //   credentials: true,
+    //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    //   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    // });
+
+ app.enableCors({
+    origin: process.env.FRONTEND_URL || '*',
+    methods: 'GET, HEAD, POST, PUT, DELETE, OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,
+  });
 
     // Global pipes
     app.useGlobalPipes(
@@ -79,7 +86,7 @@ async function bootstrap() {
         .addTag('clips', 'Clip generation and management')
         .addTag('videos', 'Video processing')
         .build();
-      
+
       const document = SwaggerModule.createDocument(app, config);
       SwaggerModule.setup('api/docs', app, document);
     }
@@ -88,12 +95,12 @@ async function bootstrap() {
     app.enableShutdownHooks();
 
     await app.listen(port);
-    
+
     logger.log(`🚀 YouTube Clipper API running on port ${port}`);
     logger.log(` Environment: ${environment}`);
     logger.log(` API Documentation: http://localhost:${port}/api/docs`);
     logger.log(` Frontend URL: ${configService.get('FRONTEND_URL')}`);
-    
+
   } catch (error) {
     logger.error('Failed to start application', error.stack);
     process.exit(1);
