@@ -99,62 +99,59 @@ model User {
   template    Template[]
   preferences Json?
 
-  clips         Clip[]
+  clips         MakeClip[]
   subscriptions Subscription?
   usage         Usage[]
-  sessions      Session[]
+  // sessions      Session[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
   @@map("users")
 }
 
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
+// model Session {
+//   id        String   @id @default(cuid())
+//   userId    String
+//   token     String   @unique
+//   expiresAt DateTime
 
-  isActive  Boolean @default(true)
-  ipAddress String?
-  userAgent String?
+//   isActive  Boolean @default(true)
+//   ipAddress String?
+//   userAgent String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  @@map("sessions")
-}
+//   @@map("sessions")
+// }
 
-model Clip {
-  id             String  @id @default(cuid())
-  title          String
-  description    String?
-  youtubeUrl     String
-  youtubeVideoId String?
+model MakeClip {
+  id              String @id @default(cuid())
+  source          String // e.g. 'youtube', 'upload', etc.
+  videoUrl        String
+  clipCount       Int    @default(1)
+  perClipDuration Int
+  creditUsed      Int    @default(0)
 
-  status       ClipStatus @default(PENDING)
-  progress     Float      @default(0)
-  errorMessage String?
-
-  config      Json?
-  template    String?
-  aspectRatio String
-
-  outputUrl    String?
-  thumbnailUrl String?
-  duration     Int     @default(0)
-
+  duration Int?  @default(0)
+  lenguage String? // detected language of the video
+  prompt   String? // user input prompt for AI analysis
   metadata Json? //AI analysis results
 
-  userId   String
-  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  segments ClipSegment[]
-  jobs     Job[]
+  userId String
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId Int
+  template   Template @relation(fields: [templateId], references: [id])
+  // segments ClipSegment[]
+  // jobs     Job[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // ClipSegment ClipSegment[]
+  // Job         Job[]
 
   @@map("clips")
 }
@@ -174,55 +171,56 @@ model Template {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
+  MakeClip MakeClip[]
 
   @@map("templates")
 }
 
 // Clip segments (for multi-segment clips)
-model ClipSegment {
-  id          String  @id @default(cuid())
-  clipId      String
-  startTime   Int
-  endTime     Int
-  title       String?
-  description String?
-  confidence  Float?
+// model ClipSegment {
+//   id          String  @id @default(cuid())
+//   clipId      String
+//   startTime   Int
+//   endTime     Int
+//   title       String?
+//   description String?
+//   confidence  Float?
 
-  clip Clip @relation(fields: [clipId], references: [id], onDelete: Cascade)
+//   clip MakeClip @relation(fields: [clipId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  @@map("clip_segments")
-}
+//   @@map("clip_segments")
+// }
 
-model Job {
-  id       String    @id @default(cuid())
-  type     JobType
-  status   JobStatus @default(PENDING)
-  priority Int       @default(0)
+// model Job {
+//   id       String    @id @default(cuid())
+//   type     JobType
+//   status   JobStatus @default(PENDING)
+//   priority Int       @default(0)
 
-  data     Json
-  result   Json?
-  error    String?
-  progress Float   @default(0)
+//   data     Json
+//   result   Json?
+//   error    String?
+//   progress Float   @default(0)
 
-  startedAt   DateTime?
-  completedAt DateTime?
-  failedAt    DateTime?
+//   startedAt   DateTime?
+//   completedAt DateTime?
+//   failedAt    DateTime?
 
-  attempts    Int @default(0)
-  maxAttempts Int @default(5)
+//   attempts    Int @default(0)
+//   maxAttempts Int @default(5)
 
-  clipId String?
-  clip   Clip?   @relation(fields: [clipId], references: [id], onDelete: Cascade)
+//   clipId String?
+//   clip   MakeClip? @relation(fields: [clipId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  @@map("jobs")
-}
+//   @@map("jobs")
+// }
 
 model Subscription {
   id     String           @id @default(cuid())
