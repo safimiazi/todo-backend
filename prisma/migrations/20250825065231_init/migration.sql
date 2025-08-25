@@ -84,14 +84,16 @@ CREATE TABLE "public"."clips" (
 
 -- CreateTable
 CREATE TABLE "public"."templates" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "category" TEXT NOT NULL,
-    "config" JSONB NOT NULL,
-    "aiSettings" JSONB,
+    "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
+    "templateName" TEXT NOT NULL,
+    "platform" TEXT NOT NULL,
+    "aspectRatio" TEXT NOT NULL,
+    "overlayLogo" TEXT,
+    "introVideo" TEXT NOT NULL,
+    "outroVideo" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -195,9 +197,6 @@ CREATE UNIQUE INDEX "users_googleId_key" ON "public"."users"("googleId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "sessions_token_key" ON "public"."sessions"("token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "templates_name_key" ON "public"."templates"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "subscriptions_userId_key" ON "public"."subscriptions"("userId");

@@ -170,11 +170,9 @@ model Template {
   templateName String
   platform     String
   aspectRatio  String
-  caption      String
   overlayLogo  String?
   introVideo   String
   outroVideo   String
-  colorTheme   String
   isActive     Boolean  @default(true)
   isDeleted    Boolean  @default(false)
   isDefault    Boolean  @default(false)
