@@ -105,6 +105,7 @@ model User {
   // sessions      Session[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  Payment       Payment[]
 
   @@map("users")
 }
@@ -135,17 +136,17 @@ model MakeClip {
   perClipDuration Int
   creditUsed      Int    @default(0)
 
-  duration Int?  @default(0)
+  duration Int?    @default(0)
   lenguage String? // detected language of the video
   prompt   String? // user input prompt for AI analysis
   metadata Json? //AI analysis results
 
   userId String
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   templateId Int
-  template   Template @relation(fields: [templateId], references: [id])
-  // segments ClipSegment[]
+  template   Template      @relation(fields: [templateId], references: [id])
+  segments   ClipSegment[]
   // jobs     Job[]
 
   createdAt DateTime @default(now())
@@ -154,6 +155,31 @@ model MakeClip {
   // Job         Job[]
 
   @@map("clips")
+}
+
+model ClipSegment {
+  id              String   @id @default(cuid())
+  clipId          String
+  startTime       Int?
+  endTime         Int?
+  title           String?
+  viralScore      String?
+  relatedTopic    String[]
+  transcript      String?
+  videoUrl        String?
+  clipEditorUrl   String?
+  videoMsDuration Int?
+  videoId         Int?
+  viralReason     String?
+  description     String?
+  confidence      Float?
+
+  clip MakeClip @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clip_segments")
 }
 
 model Template {
@@ -177,23 +203,7 @@ model Template {
   @@map("templates")
 }
 
-// Clip segments (for multi-segment clips)
-// model ClipSegment {
-//   id          String  @id @default(cuid())
-//   clipId      String
-//   startTime   Int
-//   endTime     Int
-//   title       String?
-//   description String?
-//   confidence  Float?
-
-//   clip MakeClip @relation(fields: [clipId], references: [id], onDelete: Cascade)
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@map("clip_segments")
-// }
+//Clip segments (for multi-segment clips)
 
 // model Job {
 //   id       String    @id @default(cuid())
@@ -237,7 +247,8 @@ model Subscription {
   currentPeriodEnd   DateTime
 
   monthlyClipLimit    Int @default(5)
-  monthlyMinutesLimit Int @default(60)
+  monthlyMinutesLimit Int @default(10)
+  credits             Int @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -245,6 +256,23 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  userId       String
+  stripe       String   @unique
+  amount       Int
+  currency     String   @default("usd")
+  status       String   @default("pending")
+  creditsAdded Int      @default(0)
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }
 
 model Usage {
