@@ -86,6 +86,7 @@ model User {
   avatar          String?
   role            UserRole  @default(USER)
   isActive        Boolean   @default(true)
+  isDeleted        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
   emailVerifiedAt DateTime?
 
@@ -135,6 +136,7 @@ model MakeClip {
   clipCount           Int    @default(1)
   perClipDuration     Int
   creditUsed          Int    @default(0)
+  isDeleted        Boolean   @default(true)
 
   duration Int?    @default(0)
   langCode String? // detected language of the video
