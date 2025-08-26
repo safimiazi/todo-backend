@@ -26,6 +26,8 @@ import { successResponse } from 'src/common/response/response.util';
 import { QueryMakeClipDto } from './dto/query-makecllip.dto';
 import { UpdateMakeClipDto } from './dto/update-makeclip.dto';
 
+
+
 @Controller('makeclip')
 @UseGuards(JwtAuthGuard, RolesGuard)
 
@@ -61,7 +63,7 @@ export class MakeClipController {
     async create(@Req() req, @Body() dto: CreateMakeClipDto) {
         const userId = req.user?.userId;
         console.log("user", userId);
-        console.log("dto", dto)
+        console.log("dto", dto);
         if (!userId) throw new UnauthorizedException('No user ID found in request');
         const data = await this.makeClipService.create({ ...dto, userId });
         return successResponse(data, 'Clip created');
