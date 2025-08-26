@@ -41,8 +41,12 @@ export class MakeClipService {
     }
 
 
-     async create(dto: CreateMakeClipDto) {
-    return this.prisma.makeClip.create({ data: dto });
+     async create(dto: CreateMakeClipDto, userId: string) {
+    return this.prisma.makeClip.create({ data: {
+      ...dto,
+      isDeleted: false,
+      userId
+    } });
   }
 
 
