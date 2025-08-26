@@ -27,6 +27,14 @@ export class TemplateService {
     let outroUrl = '';
     let overlayUrl = '';
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
     // Upload intro video
     if (files?.introVideo?.[0]) {
       const up = await this.cloudinary.uploadBuffer(
@@ -56,6 +64,9 @@ export class TemplateService {
       );
       overlayUrl = up.secure_url;
     }
+
+
+
 
     // Transaction to handle isDefault logic
     const created = await this.prisma.$transaction(async (tx) => {
@@ -91,7 +102,7 @@ export class TemplateService {
 
     const where: any = {
       userId,
-      isDeleted : isDeleted === 'true' ? true : false,
+      isDeleted: isDeleted === 'true' ? true : false,
       ...(search
         ? { templateName: { contains: search, mode: 'insensitive' as const } }
         : {}),
@@ -214,7 +225,7 @@ export class TemplateService {
       data: { isDeleted: true },
     });
 
-    return 
+    return
   }
 
 }
