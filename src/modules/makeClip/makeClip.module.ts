@@ -4,6 +4,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { MakeClipService } from './makeClip.service';
+import { MakeClipController } from './makeClip.controller';
 
 
 @Module({
@@ -13,7 +14,7 @@ import { MakeClipService } from './makeClip.service';
       storage: memoryStorage(), // keep files in memory buffer
     }),
   ],
-  controllers: [],
+  controllers: [MakeClipController],
   providers: [MakeClipService, PrismaService],
 })
-export class TemplateModule {}
+export class MakeClipModule {}

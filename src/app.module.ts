@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { TemplateModule } from './modules/templates/templates.module';
+import { MakeClipModule } from './modules/makeClip/makeClip.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { TemplateModule } from './modules/templates/templates.module';
       envFilePath: '.env',     
     }),
     AuthModule,
-    TemplateModule
+    TemplateModule,
+    MakeClipModule
   ],
   controllers: [AppController],
   providers: [AppService],
