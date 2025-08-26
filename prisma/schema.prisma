@@ -88,6 +88,7 @@ model User {
   isActive        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
   emailVerifiedAt DateTime?
+  isDeleted        Boolean   @default(true)
 
   googleId         String? @unique
   youtubeChannelId String?
@@ -129,18 +130,21 @@ model User {
 // }
 
 model MakeClip {
-  id              String @id @default(cuid())
-  source          String // e.g. 'youtube', 'upload', etc.
-  videoUrl        String
-  clipCount       Int    @default(1)
-  perClipDuration Int
-  creditUsed      Int    @default(0)
+   id                  String @id @default(cuid())
+  videoSourceInNumber Int
+  videoSourceInName   String // e.g. 'youtube', 'upload', etc.
+  videoUrl            String
+  clipCount           Int    @default(1)
+  perClipDuration     Int
+  creditUsed          Int    @default(0)
+  isDeleted        Boolean   @default(true)
 
   duration Int?    @default(0)
-  lenguage String? // detected language of the video
+  langCode String? // detected language of the video
   prompt   String? // user input prompt for AI analysis
   metadata Json? //AI analysis results
 
+  status   ClipStatus @default(PENDING)
   userId String
 
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -155,6 +159,7 @@ model MakeClip {
   // Job         Job[]
 
   @@map("clips")
+  @@index([userId])
 }
 
 model ClipSegment {

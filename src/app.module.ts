@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { TemplateModule } from './modules/templates/templates.module';
+import { ClipSegmentsModule } from './modules/aiClips/aiClips.module';
+
 
 @Module({
   imports: [
@@ -12,7 +14,8 @@ import { TemplateModule } from './modules/templates/templates.module';
       envFilePath: '.env',     
     }),
     AuthModule,
-    TemplateModule
+    TemplateModule,
+    ClipSegmentsModule
   ],
   controllers: [AppController],
   providers: [AppService],
