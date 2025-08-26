@@ -62,10 +62,10 @@ export class MakeClipController {
     @Roles('ADMIN', 'USER')
     async create(@Req() req, @Body() dto: CreateMakeClipDto) {
         const userId = req.user?.userId;
-        console.log("user", userId);
+        console.log("user", userId);             
         console.log("dto", dto);
         if (!userId) throw new UnauthorizedException('No user ID found in request');
-        const data = await this.makeClipService.create({ ...dto, userId });
+        const data = await this.makeClipService.create(dto, userId);
         return successResponse(data, 'Clip created');
     }
 

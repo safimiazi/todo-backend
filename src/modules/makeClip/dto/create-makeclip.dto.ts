@@ -35,8 +35,7 @@ export class CreateMakeClipDto {
   @IsOptional()
   metadata?: object;
 
-  @IsString()
-  userId: string;
+
 
   @IsInt()
   templateId: number;
