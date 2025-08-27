@@ -4,22 +4,20 @@ import { CreateClipSegmentDto } from "./dto/create-clip-segments.dto";
 
 @Injectable()
 export class AiClipsSegmentService {
-
   constructor(private prisma: PrismaService) {}
 
   async createSegment(clipId: string, userId: string, dto: CreateClipSegmentDto) {
-    // 1️⃣ Find the clip, make sure it belongs to the user and is not deleted
     const clip = await this.prisma.makeClip.findFirst({
       where: { id: clipId, userId, isDeleted: false },
     });
 
     if (!clip) throw new BadRequestException('Clip not found');
 
-    // 2️⃣ Create segments using credit values from request body
     const segmentsData = dto.clips.map(segment => ({
       clipId,
       title: segment.title,
-      creditUsed: segment.creditUsed || 0, // take from body
+      // use segment.creditUsed if exists, otherwise fallback to parent dto.creditUsed, default 0
+      creditUsed: Number(segment.creditUsed ?? dto.creditUsed ?? 0),
       viralScore: segment.viralScore,
       relatedTopic: segment.relatedTopic,
       transcript: segment.transcript,
@@ -36,10 +34,8 @@ export class AiClipsSegmentService {
       data: segmentsData,
     });
 
-    // 3️⃣ Sum credits directly from request body for updating clip
-    const totalCredits = dto.clips.reduce((sum, seg) => sum + (seg.creditUsed || 0), 0);
+    const totalCredits = segmentsData.reduce((sum, seg) => sum + seg.creditUsed, 0);
 
-    // 4️⃣ Update clip status and total credits used
     await this.prisma.makeClip.update({
       where: { id: clipId },
       data: {
@@ -48,10 +44,7 @@ export class AiClipsSegmentService {
       },
     });
 
-    // 5️⃣ Fetch created segments to return
-    const segments = await this.prisma.clipSegment.findMany({
-      where: { clipId },
-    });
+    const segments = await this.prisma.clipSegment.findMany({ where: { clipId } });
 
     return {
       status: 'success',

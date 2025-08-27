@@ -29,14 +29,15 @@ class ClipSegmentDto {
   @IsString()
   viralReason: string;
 
-  @IsString() @IsOptional()
+  @IsString()
+  @IsOptional()
   description?: string;
 
   @IsInt()
+  @IsOptional()
   @Type(() => Number)
-  creditUsed: number;
+  creditUsed?: number; // <-- add this
 }
-
 export class CreateClipSegmentDto {
   @IsString()
   status: string;
@@ -46,6 +47,10 @@ export class CreateClipSegmentDto {
 
   @IsArray()
   clips: ClipSegmentDto[];
+
+  @IsInt()
+  @Type(() => Number)
+  creditUsed: number;
 
 
 }

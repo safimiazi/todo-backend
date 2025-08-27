@@ -70,6 +70,13 @@ async login(dto: LoginDto) {
     });
   }
 
+  if(user.isDeleted){
+    throw new UnauthorizedException({
+      message: 'User account is deleted',
+      code: 'USER_DELETED',
+    });
+  }
+
   const passwordValid = await bcrypt.compare(dto.password, user.password);
   if (!passwordValid) {
     throw new UnauthorizedException({

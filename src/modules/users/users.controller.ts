@@ -1,14 +1,14 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Query,
-  Req,
-  UnauthorizedException,
-  UseGuards,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Query,
+    Req,
+    UnauthorizedException,
+    UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -20,86 +20,92 @@ import { UserService } from './users.service';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService) { }
 
-  // ✅ List users (with pagination, filters, search)
-  @Get('list')
-  @Roles('ADMIN', 'USER')
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('search') searchTerm?: string,
-    @Query('order') order: 'asc' | 'desc' = 'desc',
-    @Query() filters?: any,
-  ) {
-    const data = await this.userService.findAll(
-      Number(page),
-      Number(limit),
-      searchTerm,
-      order,
-      filters,
-    );
-    return successResponse(data, 'Users fetched');
-  }
-
-  // ✅ Get single user by ID
-  @Get(':id')
-  @Roles('ADMIN', 'USER')
-  async findOne(@Param('id') id: string, @Req() req) {
-
-    console.log("id", id, req.user)
-    // Users can only fetch their own profile unless ADMIN
-    if (req.user?.role !== 'ADMIN' && req.user?.userId !== id) {
-      throw new UnauthorizedException('You can only access your own profile');
+    // ✅ List users (with pagination, filters, search)
+    @Get('list')
+    @Roles('ADMIN', 'USER')
+    async findAll(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+        @Query('search') searchTerm?: string,
+        @Query('order') order: 'asc' | 'desc' = 'desc',
+        @Query() filters?: any,
+    ) {
+        const data = await this.userService.findAll(
+            Number(page),
+            Number(limit),
+            searchTerm,
+            order,
+            filters,
+        );
+        return successResponse(data, 'Users fetched');
     }
 
-    const data = await this.userService.findOne(id);
-    return successResponse(data, 'User fetched');
-  }
+    // ✅ Get single user by ID
+    @Get('single-user')
+    @Roles('ADMIN', 'USER')
+    async findOne(@Req() req) {
 
-  // ✅ Update user
-  @Patch('update-user/:id')
-  @Roles('ADMIN', 'USER')
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-    @Req() req,
-  ) {
-    const userId = req.user?.userId;
+        const id = req.user?.userId;
 
-    // Users can only update their own account unless ADMIN
-    if (req.user?.role !== 'ADMIN' && userId !== id) {
-      throw new UnauthorizedException(
-        'You can only update your own account',
-      );
+
+        const data = await this.userService.findOne(id);
+        return successResponse(data, 'User fetched');
     }
 
-    const data = await this.userService.update(id, dto);
-    return successResponse(data, 'User updated');
-  }
+    // ✅ Update user
+    @Patch('update-user/:id')
+    @Roles('ADMIN', 'USER')
+    async update(
+        @Param('id') id: string,
+        @Body() dto: UpdateUserDto,
+        @Req() req,
+    ) {
+        const userId = req.user?.userId;
 
-  // ✅ Soft delete user
-  @Delete(':id')
-  @Roles('ADMIN', 'USER')
-  async remove(@Param('id') id: string, @Req() req) {
-    const userId = req.user?.userId;
+        // Users can only update their own account unless ADMIN
+        if (req.user?.role !== 'ADMIN' && userId !== id) {
+            throw new UnauthorizedException(
+                'You can only update your own account',
+            );
+        }
 
-    // Users can only delete themselves unless ADMIN
-    if (req.user?.role !== 'ADMIN' && userId !== id) {
-      throw new UnauthorizedException(
-        'You can only delete your own account',
-      );
+        const data = await this.userService.update(id, dto);
+        return successResponse(data, 'User updated');
     }
 
-    const data = await this.userService.remove(id);
-    return successResponse(data, 'User deleted');
-  }
+    // ✅ Soft delete user
+    @Delete(':id')
+    @Roles('ADMIN', 'USER')
+    async remove(@Param('id') id: string, @Req() req) {
+        const userId = req.user?.userId;
 
-  // ✅ Get user by email (Admin only)
-  @Get('by-email/:email')
-  @Roles('ADMIN')
-  async findOneByEmail(@Param('email') email: string) {
-    const data = await this.userService.findOneByEmail(email);
-    return successResponse(data, 'User fetched by email');
-  }
+        // Users can only delete themselves unless ADMIN
+        if (req.user?.role !== 'ADMIN' && userId !== id) {
+            throw new UnauthorizedException(
+                'You can only delete your own account',
+            );
+        }
+
+        const data = await this.userService.remove(id);
+        return successResponse(data, 'User deleted');
+    }
+
+    @Delete('remove-self/:id')
+    @Roles('ADMIN', 'USER')
+    async removeSelf(@Param('id') id: string, @Req() req) {
+
+        const data = await this.userService.remove(id);
+        const { password, ...userWithoutPassword } = data;
+        return successResponse(userWithoutPassword, 'User deleted successfully');
+    }
+
+    // ✅ Get user by email (Admin only)
+    @Get('by-email/:email')
+    @Roles('ADMIN')
+    async findOneByEmail(@Param('email') email: string) {
+        const data = await this.userService.findOneByEmail(email);
+        return successResponse(data, 'User fetched by email');
+    }
 }
