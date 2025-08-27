@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { TemplateModule } from './modules/templates/templates.module';
 import { MakeClipModule } from './modules/makeClip/makeClip.module';
+import { UserModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { MakeClipModule } from './modules/makeClip/makeClip.module';
     }),
     AuthModule,
     TemplateModule,
-    MakeClipModule
+    MakeClipModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService],
