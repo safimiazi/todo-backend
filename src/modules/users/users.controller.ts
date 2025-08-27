@@ -51,7 +51,7 @@ export class UserController {
   }
 
   // ✅ Update user
-  @Patch(':id')
+  @Patch('update-user/:id')
   @Roles('ADMIN', 'USER')
   async update(
     @Param('id') id: string,

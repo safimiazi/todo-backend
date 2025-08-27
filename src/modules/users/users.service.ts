@@ -82,7 +82,7 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     try {
-      const { role, ...rest } = updateUserDto;
+      const { role, email, ...rest } = updateUserDto;
       const user = await this.prisma.user.update({
         where: { id },
         data: {
@@ -90,7 +90,8 @@ export class UserService {
           ...(role ? { role: role as any } : {}),
         },
       });
-      return user;
+        return user;
+
     } catch (error) {
       if (error.code === 'P2025') {
         throw new NotFoundException(`User not found`);
