@@ -55,6 +55,8 @@ export class MakeClipController {
         const videoUrl = await this.makeClipService.uploadVideoFile(files.videoFile);
         return { videoUrl };
     }
+
+    @Roles('ADMIN', 'USER')
     @Post('upload-image-file')
     @UseInterceptors(
         FileFieldsInterceptor(

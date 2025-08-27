@@ -22,7 +22,7 @@ import { ClipSegmentsModule } from './modules/aiClips/aiClips.module';
     TemplateModule,
 
     MakeClipModule,
-    UserModule
+    UserModule,
 
     ClipSegmentsModule
 

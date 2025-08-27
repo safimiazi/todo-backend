@@ -16,22 +16,26 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    // Fetch user from DB using the 'id' from payload (now consistent)
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.id }, // Use 'id' from payload
-    });
+  // async validate(payload: any) {
+  //   // Fetch user from DB using the 'id' from payload (now consistent)
+  //   const user = await this.prisma.user.findUnique({
+  //     where: { id: payload.id }, // Use 'id' from payload
+  //   });
 
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
+  //   if (!user) {
+  //     throw new UnauthorizedException('User not found');
+  //   }
 
-    // Return the full user or specific fields (req.user will have this)
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      // Add other fields if needed, e.g., firstName: user.firstName
-    };
+  //   // Return the full user or specific fields (req.user will have this)
+  //   return {
+  //     id: user.id,
+  //     email: user.email,
+  //     role: user.role,
+  //     // Add other fields if needed, e.g., firstName: user.firstName
+  //   };
+  // }
+
+   async validate(payload: any) {
+    return { userId: payload.userId, email: payload.email, role: payload.role };
   }
 }

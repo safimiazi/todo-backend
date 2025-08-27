@@ -89,7 +89,6 @@ model User {
   isDeleted        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
   emailVerifiedAt DateTime?
-  isDeleted        Boolean   @default(true)
 
   googleId         String? @unique
   youtubeChannelId String?
