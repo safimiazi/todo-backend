@@ -39,6 +39,28 @@ export class MakeClipService {
 
     return videoUrl;
   }
+  async uploadFile(
+
+    file?: Express.Multer.File[]
+
+  ) {
+    let fileUrl = '';
+
+
+    // Upload intro video
+    if (file?.[0]) {
+      const up = await this.cloudinary.uploadBuffer(
+        file[0].buffer,
+        'makeclip/fileUrl',
+        'image',
+      );
+      fileUrl = up.secure_url;
+    }
+
+
+
+    return fileUrl;
+  }
 
 
 async create(dto: CreateMakeClipDto, userId: string) {

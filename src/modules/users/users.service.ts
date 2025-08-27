@@ -80,25 +80,31 @@ export class UserService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    try {
-      const { role, email, ...rest } = updateUserDto;
-      const user = await this.prisma.user.update({
-        where: { id },
-        data: {
-          ...rest,
-          ...(role ? { role: role as any } : {}),
-        },
-      });
-        return user;
+async update(id: string, updateUserDto: UpdateUserDto) {
+  try {
+    const { role, email, password, ...rest } = updateUserDto;
 
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException(`User not found`);
-      }
-      throw new InternalServerErrorException('Failed to update user');
+
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(role ? { role: role as any } : {}),
+      },
+    });
+
+    // 🚫 Do not expose password
+    const { password: _, ...safeUser } = user;
+
+    return safeUser;
+  } catch (error) {
+    if (error.code === 'P2025') {
+      throw new NotFoundException(`User not found`);
     }
+    throw new InternalServerErrorException('Failed to update user');
   }
+}
+
 
   async remove(id: string) {
     const existingUser = await this.prisma.user.findUnique({

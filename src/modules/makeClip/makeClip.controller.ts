@@ -55,6 +55,28 @@ export class MakeClipController {
         const videoUrl = await this.makeClipService.uploadVideoFile(files.videoFile);
         return { videoUrl };
     }
+    @Post('upload-image-file')
+    @UseInterceptors(
+        FileFieldsInterceptor(
+            [
+                { name: 'file', maxCount: 1 }
+            ],
+            { limits: { fileSize: 1024 * 1024 * 200 } }
+        )
+    )
+    @Roles('ADMIN', 'USER')
+    async uploadFile(
+        @UploadedFiles()
+        files: { file: Express.Multer.File[] }
+    ) {
+
+        // Check if file exists
+        if (!files?.file || files.file.length === 0) {
+            throw new BadRequestException('No video file uploaded. Please provide a file.');
+        }
+        const imageurl = await this.makeClipService.uploadFile(files.file);
+        return { imageurl };
+    }
 
 
     // ✅ Create new clip
@@ -62,7 +84,7 @@ export class MakeClipController {
     @Roles('ADMIN', 'USER')
     async create(@Req() req, @Body() dto: CreateMakeClipDto) {
         const userId = req.user?.userId;
-    
+
         if (!userId) throw new UnauthorizedException('No user ID found in request');
         const data = await this.makeClipService.create(dto, userId);
         return successResponse(data, 'Clip created');
