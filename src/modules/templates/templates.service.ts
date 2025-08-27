@@ -98,7 +98,6 @@ export class TemplateService {
   // List templates for a user
   async list(userId: string, q: QueryTemplateDto) {
     const { page = 1, limit = 10, search, orderBy = 'desc', isDeleted = false } = q;
-    console.log(typeof isDeleted)
 
     const where: any = {
       userId,

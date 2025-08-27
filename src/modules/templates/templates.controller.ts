@@ -38,12 +38,10 @@ export class TemplateController {
         files: { introVideo?: Express.Multer.File[]; outroVideo?: Express.Multer.File[]; overlayLogo?: Express.Multer.File[] },
     ) {
         const userId = req.user.userId; // ensure AuthGuard sets req.user
-        console.log(req.user)
 
         if (!userId) {
             throw new UnauthorizedException('No user ID found in request');
         }
-        console.log(dto)
         const data = await this.templateService.create(userId, dto, files);
         return successResponse(data, 'Template created');
     }
@@ -52,7 +50,6 @@ export class TemplateController {
     @Roles('ADMIN', 'USER') // 👈 explicitly bole dilam
     async list(@Req() req, @Query() q: QueryTemplateDto) {
         const userId = req.user?.userId;
-        console.log('User ID from request:', userId);
         const data = await this.templateService.list(userId, q);
         return successResponse(data, 'Templates fetched');
     }
