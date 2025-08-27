@@ -89,6 +89,7 @@ model User {
   isDeleted        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
   emailVerifiedAt DateTime?
+  isDeleted        Boolean   @default(true)
 
   googleId         String? @unique
   youtubeChannelId String?
@@ -106,6 +107,7 @@ model User {
   // sessions      Session[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  Payment       Payment[]
 
   @@map("users")
 }
@@ -208,25 +210,6 @@ model Template {
 }
 
 
-
-// Clip segments (for multi-segment clips)
-// model ClipSegment {
-//   id          String  @id @default(cuid())
-//   clipId      String
-//   startTime   Int
-//   endTime     Int
-//   title       String?
-//   description String?
-//   confidence  Float?
-
-//   clip MakeClip @relation(fields: [clipId], references: [id], onDelete: Cascade)
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@map("clip_segments")
-// }
-
 // model Job {
 //   id       String    @id @default(cuid())
 //   type     JobType
@@ -269,7 +252,8 @@ model Subscription {
   currentPeriodEnd   DateTime
 
   monthlyClipLimit    Int @default(5)
-  monthlyMinutesLimit Int @default(60)
+  monthlyMinutesLimit Int @default(10)
+  credits             Int @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -277,6 +261,23 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  userId       String
+  stripe       String   @unique
+  amount       Int
+  currency     String   @default("usd")
+  status       String   @default("pending")
+  creditsAdded Int      @default(0)
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }
 
 model Usage {

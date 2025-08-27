@@ -4,8 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { TemplateModule } from './modules/templates/templates.module';
+
 import { MakeClipModule } from './modules/makeClip/makeClip.module';
 import { UserModule } from './modules/users/users.module';
+
+import { ClipSegmentsModule } from './modules/aiClips/aiClips.module';
+
+
 
 @Module({
   imports: [
@@ -15,8 +20,12 @@ import { UserModule } from './modules/users/users.module';
     }),
     AuthModule,
     TemplateModule,
+
     MakeClipModule,
     UserModule
+
+    ClipSegmentsModule
+
   ],
   controllers: [AppController],
   providers: [AppService],
