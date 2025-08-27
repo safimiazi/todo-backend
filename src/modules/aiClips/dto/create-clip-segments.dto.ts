@@ -42,6 +42,4 @@ export class CreateClipSegmentDto {
   @IsArray()
   clips: ClipSegmentDto[];
 
-  @IsString() // Added for temporary workaround
-  userId: string;
 }

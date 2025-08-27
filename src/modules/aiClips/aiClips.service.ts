@@ -13,9 +13,9 @@ export class AiClipsSegmentService {
 
     async createSegment(clipId: string, userId: string, dto: CreateClipSegmentDto ) {
         const clip = await this.prisma.makeClip.findFirst({where:{ id: clipId, userId}});
-
+            console.log("is there any user Id available?",userId);
         if(!clip ) throw new BadRequestException('Clip not found');
-
+       
         const segments = dto.clips.map(segment => ( {
             clipId,
             title: segment.title,
@@ -44,7 +44,8 @@ export class AiClipsSegmentService {
         return {status: 'success', segmentsCreated: createdSegments.count};
     }
 
-    async getSegments(clipId: string) {
+    async getSegments(clipId: string, userId: any) {
+        
         return this.prisma.clipSegment.findMany({
             where: {clipId},
         })
