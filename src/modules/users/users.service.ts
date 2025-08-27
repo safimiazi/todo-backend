@@ -63,6 +63,7 @@ export class UserService {
 
   async findOne(id: string) {
     try {
+
       const user = await this.prisma.user.findUnique({
         where: { id },
       });
@@ -71,7 +72,13 @@ export class UserService {
         throw new NotFoundException(`User not found`);
       }
 
-      return user;
+      if(user.isDeleted){
+        throw new NotFoundException("User already deleted!")
+      }
+
+        const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

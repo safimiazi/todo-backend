@@ -178,6 +178,7 @@ model ClipSegment {
   viralReason     String?
   description     String?
   confidence      Float?
+  creditUsed      Int      @default(0) 
 
   clip MakeClip @relation(fields: [clipId], references: [id], onDelete: Cascade)
 

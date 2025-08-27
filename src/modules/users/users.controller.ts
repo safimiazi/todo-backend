@@ -23,8 +23,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // ✅ List users (with pagination, filters, search)
-  @Get()
-  @Roles('ADMIN')
+  @Get('list')
+  @Roles('ADMIN', 'USER')
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -45,7 +45,14 @@ export class UserController {
   // ✅ Get single user by ID
   @Get(':id')
   @Roles('ADMIN', 'USER')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @Req() req) {
+
+    console.log("id", id, req.user)
+    // Users can only fetch their own profile unless ADMIN
+    if (req.user?.role !== 'ADMIN' && req.user?.userId !== id) {
+      throw new UnauthorizedException('You can only access your own profile');
+    }
+
     const data = await this.userService.findOne(id);
     return successResponse(data, 'User fetched');
   }

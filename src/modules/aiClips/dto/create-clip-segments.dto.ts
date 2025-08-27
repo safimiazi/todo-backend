@@ -1,4 +1,5 @@
 import { IsString, IsArray, IsInt, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
 
 class ClipSegmentDto {
   @IsString()
@@ -30,6 +31,10 @@ class ClipSegmentDto {
 
   @IsString() @IsOptional()
   description?: string;
+
+  @IsInt()
+  @Type(() => Number)
+  creditUsed: number;
 }
 
 export class CreateClipSegmentDto {
@@ -41,5 +46,6 @@ export class CreateClipSegmentDto {
 
   @IsArray()
   clips: ClipSegmentDto[];
+
 
 }

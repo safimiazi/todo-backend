@@ -30,7 +30,7 @@ export class AuthController {
         return successResponse(data, 'Login successful');
     }
 
-    @UseGuards(LocalAuthGuard)
+ @UseGuards(LocalAuthGuard)
     @Post('profile')
     getProfile(@Req() req) {
         return req.user;
