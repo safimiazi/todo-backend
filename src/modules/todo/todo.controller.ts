@@ -22,14 +22,23 @@ async findAll(
   @Query('status') status?: TodoStatus,
   @Query('page') page = '1',
   @Query('limit') limit = '10',
+  @Query('search') search?: string,   // 👈 added
 ) {
   const { userId }: any = req['user'];
   const pageNumber = parseInt(page, 10);
   const limitNumber = parseInt(limit, 10);
 
-  const result = await this.todoService.findAll(userId, status, pageNumber, limitNumber);
-  return successResponse(result, "Todos fetched successfully.");
+  const result = await this.todoService.findAll(
+    userId,
+    status,
+    pageNumber,
+    limitNumber,
+    search,
+  );
+
+  return successResponse(result, 'Todos fetched successfully.');
 }
+
 
 
     @Get(':id')

@@ -12,11 +12,24 @@ export class TodoService {
     return this.todoRepo.create(todo);
   }
 
-async findAll(userId: string, status?: TodoStatus, page = 1, limit = 10) {
-  const { todos, totalItems } = await this.todoRepo.findAll(userId, status, page, limit);
+async findAll(
+  userId: string,
+  status?: TodoStatus,
+  page = 1,
+  limit = 10,
+  search?: string,
+) {
+  const { todos, totalItems } = await this.todoRepo.findAll(
+    userId,
+    status,
+    page,
+    limit,
+    search,
+  );
   const totalPages = Math.ceil(totalItems / limit);
   return { todos, meta: { page, limit, totalItems, totalPages } };
 }
+
 
 
 

@@ -7,6 +7,7 @@ export interface TodoRepository {
         status?: TodoStatus,
         page?: number,
         limit?: number,
+        search?:string
     ):Promise<{ todos: Todo[]; totalItems: number }>;
     findById(id: string, userId: string): Promise<Todo | null>;
     update(id: string, userId: string, data: Partial<Todo>): Promise<Todo>;
