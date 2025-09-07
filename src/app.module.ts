@@ -2,13 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TodoModule } from './modules/todo/todo.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { TemplateModule } from './modules/templates/templates.module';
 
-import { MakeClipModule } from './modules/makeClip/makeClip.module';
-import { UserModule } from './modules/users/users.module';
-
-import { ClipSegmentsModule } from './modules/aiClips/aiClips.module';
 
 
 
@@ -18,13 +14,10 @@ import { ClipSegmentsModule } from './modules/aiClips/aiClips.module';
       isGlobal: true,          
       envFilePath: '.env',     
     }),
-    AuthModule,
-    TemplateModule,
-
-    MakeClipModule,
-    UserModule,
-
-    ClipSegmentsModule
+    
+    TodoModule,
+    AuthModule
+  
 
   ],
   controllers: [AppController],
