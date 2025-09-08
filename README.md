@@ -51,16 +51,16 @@ This module implements a **Todo management system** using **NestJS** and **Prism
    - Accepts:
      ```json
      {
-       "name": "User Name",
-       "email": "user@example.com",
-       "password": "yourpassword"
+       "name": "Mohebulla Miazi",
+       "email": "mohibullamiazi@gmail.com",
+       "password": "mohibulla"
      }
      ```
    - Response:
      ```json
      {
-       "name": "User Name",
-       "email": "user@example.com"
+       "name": "Mohebulla Miazi",
+       "email": "mohibullamiazi@gmail.com",
      }
      ```
 
@@ -70,8 +70,8 @@ This module implements a **Todo management system** using **NestJS** and **Prism
    - Accepts:
      ```json
      {
-       "email": "user@example.com",
-       "password": "yourpassword"
+       "name": "Mohebulla Miazi",
+       "email": "mohibullamiazi@gmail.com",
      }
      ```
    - Response:
