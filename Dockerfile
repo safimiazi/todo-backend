@@ -8,11 +8,12 @@ RUN npm install
 
 COPY . .
 
-# Prisma generate only
+# Only generate Prisma client (NO migrate here)
 RUN npx prisma generate
 
 # Build the app
 RUN npm run build
+
 
 # Stage 2: Production
 FROM node:18-alpine
@@ -24,9 +25,7 @@ RUN npm install --production
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-ENV NODE_ENV=production
-
-# Run migrations + start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+# Run migrations when the container starts, before running the app
+CMD npx prisma migrate deploy && node dist/src/main.js

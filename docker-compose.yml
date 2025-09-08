@@ -1,27 +1,31 @@
+version: "3.9"
+
 services:
   db:
     image: mysql:8.0
+    container_name: todo_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: Nh!1@aaa
       MYSQL_DATABASE: todo
-      MYSQL_USER: root
-      MYSQL_PASSWORD: Nh!1@aaa
     ports:
-      - '3306:3306'
+      - "3307:3306"  
     volumes:
       - db-data:/var/lib/mysql
 
-  backend:
+  app:
     build: .
+    container_name: todo_backend
     depends_on:
       - db
     environment:
-      DATABASE_URL: mysql://root:Nh!1@aaa@db:3306/todo
+      DATABASE_URL: mysql://root:Nh%211%40aaa@db:3306/todo
       JWT_SECRET: SJF30FIOLFJCILSwuwerioweofj
       EXPIRESIN: 12h
+      
+
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
