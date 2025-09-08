@@ -1,10 +1,12 @@
 # Todo Module (NestJS + Prisma)
 
-This module implements a **Todo management system** using **NestJS** and **Prisma** as ORM. It provides CRUD operations for Todos, supports filtering, pagination, and search functionality.
+This module implements a **Todo management system** using **NestJS** and **Prisma** as ORM. It provides CRUD operations for Todos, supports filtering, pagination, search functionality, and user authentication.
 
 ---
 
 ## Features
+
+### Todo Endpoints
 
 1. **Create Todo**
    - Endpoint: `POST /todos/create`
@@ -41,35 +43,42 @@ This module implements a **Todo management system** using **NestJS** and **Prism
 
 ---
 
-## Structure
+### Authentication Endpoints
 
-### Controller (`TodoController`)
-- Handles incoming HTTP requests.
-- Maps routes to service methods.
-- Uses `@Req()` to extract authenticated `userId`.
+1. **Register User**
+   - Endpoint: `POST /auth/register`
+   - Creates a new user account.
+   - Accepts:
+     ```json
+     {
+       "name": "User Name",
+       "email": "user@example.com",
+       "password": "yourpassword"
+     }
+     ```
+   - Response:
+     ```json
+     {
+       "name": "User Name",
+       "email": "user@example.com"
+     }
+     ```
 
-### Service (`TodoService`)
-- Contains business logic for Todos.
-- Delegates database operations to the repository.
-- Handles pagination and search metadata.
+2. **Login User**
+   - Endpoint: `POST /auth/login`
+   - Logs in an existing user.
+   - Accepts:
+     ```json
+     {
+       "email": "user@example.com",
+       "password": "yourpassword"
+     }
+     ```
+   - Response:
+     ```json
+     {
+       "access_token": "jwt_token_here"
+     }
+     ```
 
-### Repository (`TodoRepository` interface)
-- Defines the contract for database operations.
-- Includes methods:
-  - `create(todo: Partial<Todo>): Promise<Todo>`
-  - `findAll(userId, status?, page?, limit?, search?): Promise<{ todos: Todo[], totalItems: number }>`
-  - `findById(id, userId): Promise<Todo | null>`
-  - `update(id, userId, data): Promise<Todo>`
-  - `delete(id, userId): Promise<void>`
-
-### Database
-- **Prisma** ORM connected to a MySQL database.
-- `Todo` model contains fields like `id`, `title`, `description`, `status`, and `userId`.
-
----
-
-## Usage
-
-1. Install dependencies:
-```bash
-npm install
+> All Todo endpoints require a valid JWT token in the `Authorization` header:
